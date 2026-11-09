@@ -1,9 +1,10 @@
 // 게임 생성 (DESIGN_PHASE3.md 1.2 시작 상태, 17.3 난수)
 //
 // 플레이어 시작 자원, 턴 순서, 용도별 난수 스트림을 만들고 1라운드를 연다.
-// 카드 덱·시장·목표 덱은 해당 규칙 단계(4~6단계)에서 채운다. 지금은 빈 덱이다.
+// 사건·기회·지출·환경 덱을 섞는다. 프로젝트 덱·시장·목표 덱은 5~6단계에서 채운다.
 
 import { RULES } from './data';
+import { initCardDecks } from './decks';
 import { startGameIfReady } from './flow';
 import { allStreamKeys, createRngState, isValidSeed, RngStreams, shuffle } from './rng';
 import type { Ctx } from './state';
@@ -86,6 +87,7 @@ export function createGame(config: GameConfig): CreateResult {
     log: [{ round: 0, kind: 'setup', cause: `게임 생성 (시드 ${config.seed}, 턴 순서 ${turnOrder.join(' → ')})` }],
     status: 'setup',
   };
+  initCardDecks(state);
   const ctx: Ctx = { log: [] };
   startGameIfReady(state, ctx);
   state.log.push(...ctx.log);

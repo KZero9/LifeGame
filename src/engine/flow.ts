@@ -3,7 +3,8 @@
 // 입력을 기다리지 않는 단계(① 시작, ⑥ 정산, 라운드 시작·종료)는 여기서 자동으로 처리한다.
 // 처리기는 단계를 끝낼 때 이 모듈의 함수를 불러 다음 입력 지점까지 진행시킨다.
 
-import { RULES, stageRule } from './data';
+import { environmentCard, RULES, stageRule } from './data';
+import { discard, draw } from './decks';
 import { discharge } from './health';
 import { activeTurn, changeHealth, emit, gainCash, getPlayer, payForced, type Ctx } from './state';
 import type { GameState, PlayerId, TurnState } from './types';
@@ -41,6 +42,9 @@ export function beginRound(state: GameState, ctx: Ctx, round: number): void {
   state.turnIndex = 0;
   state.turn = null;
   emit(state, ctx, { kind: 'round', cause: `${round}라운드 시작 (${stageRule(round).stage})` });
+  // 공통 환경 카드 공개 (7장). 덱이 비면 버린 8장을 다시 섞는다
+  state.environment = draw(state, 'env');
+  emit(state, ctx, { kind: 'environment', cause: `공통 환경: ${environmentCard(state.environment).title}` });
   beginTurn(state, ctx);
 }
 
@@ -58,12 +62,6 @@ export function beginTurn(state: GameState, ctx: Ctx): void {
     return;
   }
   state.turn.phase = 'move';
-}
-
-/** ③ 칸 처리. 2단계에서는 위치만 바꾸고 칸 효과 없이 ④로 넘어간다 (칸 처리는 4단계) */
-export function enterTile(state: GameState, _ctx: Ctx): void {
-  activeTurn(state).phase = 'tile';
-  enterActions(state);
 }
 
 export function enterActions(state: GameState): void {
@@ -133,7 +131,8 @@ function nextTurn(state: GameState, ctx: Ctx): void {
 export function endRound(state: GameState, ctx: Ctx): void {
   state.turn = null;
   // 1. 만기 프로젝트 정산 — 5단계
-  // 2. 환경 카드 버림 — 4단계
+  // 2. 이번 라운드 환경 카드를 버린 더미로
+  if (state.environment) discard(state, 'env', state.environment);
   // 3. 시장 보충 — 5단계
   emit(state, ctx, { kind: 'round', cause: `${state.round}라운드 종료` });
   if (state.round >= RULES.rounds) {

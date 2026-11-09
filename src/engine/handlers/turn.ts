@@ -1,7 +1,8 @@
 // 이동과 단계 종료 (DESIGN_PHASE3.md 2.2 ②, 3장, 12.1)
 
 import { RULES } from '../data';
-import { enterTile, enterTrade, settleTurn } from '../flow';
+import { enterTrade, settleTurn } from '../flow';
+import { enterTile } from '../tiles';
 import { rollDie, RngStreams } from '../rng';
 import { activeTurn, emit, getPlayer } from '../state';
 import type { Handler } from './types';

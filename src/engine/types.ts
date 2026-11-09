@@ -220,33 +220,38 @@ export type ApplyResult =
 // ---------------------------------------------------------------------------
 // 카드 데이터 (JSON, 선언형). 로더와 검사는 17.2 4단계에서 구현한다.
 
-/** 카드 적용 조건. 4단계에서 카드 데이터에 맞춰 확장한다 */
+/** 카드 적용 조건과 선택지 조건 */
 export type Condition =
   | { kind: 'job'; in: Job[] }
   | { kind: 'healthAtMost'; value: number }
   | { kind: 'healthAtLeast'; value: number }
   | { kind: 'skillAtLeast'; value: number }
-  | { kind: 'cashAtLeast'; value: number };
+  | { kind: 'skillAtMost'; value: number }
+  | { kind: 'cashAtLeast'; value: number }
+  | { kind: 'marketNotEmpty' };
+
+export type CardDeckKind = 'event' | 'opportunity' | 'expense' | 'rest';
+
+export interface CardBranch {
+  autoEffects?: Effect[];
+  /** 있으면 isFallback 정확히 1개 */
+  options?: CardOption[];
+  /** 분기 설명 */
+  text?: string;
+}
 
 export interface EventCard {
   id: string;
-  deck: Stage | 'opportunity' | 'expense';
+  deck: CardDeckKind;
   title: string;
   /** 불충족 → 해당 없음 */
   appliesIf?: Condition[];
-  /** 사전 판정 → 분기 키 */
+  /** 사전 판정 → 분기 키. 직업이 목록에 없으면 해당 없음 */
   check?: {
     byJob: Partial<Record<Job, string | { roll: { atLeast: number; success: string; fail: string } }>>;
   };
   /** 판정이 없으면 'default' */
-  branches: Record<
-    string,
-    {
-      autoEffects?: Effect[];
-      /** 있으면 isFallback 정확히 1개 */
-      options?: CardOption[];
-    }
-  >;
+  branches: Record<string, CardBranch>;
 }
 
 export interface CardOption {
@@ -256,6 +261,8 @@ export interface CardOption {
   conditions?: Condition[];
   apCost?: number;
   voluntaryCost?: number;
+  /** 자발 비용에 더할 환경 카드 값 (불황의 재취업 비용 +1) */
+  envCostDelta?: 'rehireCostDelta';
   forcedCost?: number;
   /** 순서대로 적용, 건강 판정은 모두 적용 뒤 */
   effects: Effect[];
@@ -266,6 +273,7 @@ export type Effect =
   | { kind: 'cash'; amount: number }
   | { kind: 'health'; amount: number }
   | { kind: 'skill'; amount: number }
+  | { kind: 'ap'; amount: number }
   | { kind: 'setJob'; job: Job }
   | { kind: 'restorePreviousJob' }
   | { kind: 'modifier'; key: 'noOvertime' | 'freeJobSearch' | 'workPayDelta'; value: boolean | number }

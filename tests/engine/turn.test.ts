@@ -16,8 +16,9 @@ describe('이동 (3장)', () => {
     expect(dice).toBeGreaterThanOrEqual(1);
     expect(dice).toBeLessThanOrEqual(6);
     expect(reason(s, id, { type: 'ROLL' })).toBe('ALREADY_ROLLED');
+    player(s, id).position = (5 - dice + 20) % 20; // 도착 칸이 시장(빈 공개 목록)이 되게
     s = act(s, id, { type: 'ADJUST', delta: 0 });
-    expect(player(s, id).position).toBe(dice);
+    expect(player(s, id).position).toBe(5);
     expect(s.turn).toMatchObject({ phase: 'actions', apLeft: 3, adjusted: false });
   });
 
@@ -109,8 +110,9 @@ describe('생활 행동 (5장)', () => {
   it('E13 자영업 추가근무 불가', () => {
     let s = toActions(newGame(3));
     me(s).job = 'business';
+    s.environment = 'normal';
     s = act(s, current(s), life('work'));
-    expect(s.turn!.pendingIncome).toBe(4); // 환경 미공개 → 보통
+    expect(s.turn!.pendingIncome).toBe(4);
     expect(reason(s, current(s), life('overtime'))).toBe('NO_OVERTIME_JOB');
   });
 

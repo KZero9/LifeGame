@@ -1,0 +1,222 @@
+{
+  "decks": {
+    "youth": ["restructure", "emergency-youth", "collab", "overwork"],
+    "middle": ["restructure", "emergency-middle", "collab", "overwork"],
+    "senior": ["restructure", "emergency-senior", "health-decline", "health-decline"],
+    "opportunity": ["study-chance", "job-posting", "checkup", "seminar"],
+    "expense": ["housing", "celebration"]
+  },
+  "cards": [
+    {
+      "id": "restructure",
+      "deck": "event",
+      "title": "구조조정",
+      "appliesIf": [{ "kind": "job", "in": ["parttime", "office", "tech", "business"] }],
+      "check": {
+        "byJob": {
+          "parttime": "parttime",
+          "office": { "roll": { "atLeast": 4, "success": "safe", "fail": "laidOff" } },
+          "tech": "laidOff",
+          "business": "crisis"
+        }
+      },
+      "branches": {
+        "parttime": {
+          "autoEffects": [{ "kind": "modifier", "key": "workPayDelta", "value": -1 }],
+          "text": "아르바이트는 실직하지 않지만 이번 턴 근무 급여가 1 줄어든다"
+        },
+        "safe": { "text": "구조조정을 피했다" },
+        "laidOff": {
+          "autoEffects": [{ "kind": "setJob", "job": "none" }],
+          "text": "실직했다",
+          "options": [
+            { "id": "rehire", "label": "재취업 (이전 직업 복귀)", "voluntaryCost": 3, "envCostDelta": "rehireCostDelta", "effects": [{ "kind": "restorePreviousJob" }], "resultText": "이전 직업으로 복귀했다" },
+            { "id": "stay", "label": "무직 유지", "effects": [], "resultText": "무직으로 지낸다. ④에서 구직할 수 있다" },
+            { "id": "parttime", "label": "아르바이트로 즉시 전환", "isFallback": true, "effects": [{ "kind": "setJob", "job": "parttime" }], "resultText": "아르바이트를 시작했다" }
+          ]
+        },
+        "crisis": {
+          "text": "폐업 위기",
+          "options": [
+            { "id": "keep", "label": "현금 4로 사업 유지", "voluntaryCost": 4, "effects": [], "resultText": "사업을 유지했다" },
+            { "id": "close", "label": "폐업", "isFallback": true, "effects": [{ "kind": "setJob", "job": "none" }], "resultText": "폐업해 무직이 되었다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "emergency-youth",
+      "deck": "event",
+      "title": "긴급 지출",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "pay", "label": "현금 3으로 지불", "voluntaryCost": 3, "effects": [], "resultText": "지불했다" },
+            { "id": "diy", "label": "직접 해결", "apCost": 2, "voluntaryCost": 1, "effects": [{ "kind": "health", "amount": -1 }], "resultText": "직접 해결했다" },
+            { "id": "forced", "label": "강제 지불 3 (부족분은 부채)", "isFallback": true, "forcedCost": 3, "effects": [], "resultText": "지불했다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "emergency-middle",
+      "deck": "event",
+      "title": "긴급 지출",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "pay", "label": "현금 4로 지불", "voluntaryCost": 4, "effects": [], "resultText": "지불했다" },
+            { "id": "diy", "label": "직접 해결", "apCost": 2, "voluntaryCost": 1, "effects": [{ "kind": "health", "amount": -1 }], "resultText": "직접 해결했다" },
+            { "id": "forced", "label": "강제 지불 4 (부족분은 부채)", "isFallback": true, "forcedCost": 4, "effects": [], "resultText": "지불했다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "emergency-senior",
+      "deck": "event",
+      "title": "긴급 지출",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "pay", "label": "현금 5로 지불", "voluntaryCost": 5, "effects": [], "resultText": "지불했다" },
+            { "id": "diy", "label": "직접 해결", "apCost": 2, "voluntaryCost": 1, "effects": [{ "kind": "health", "amount": -1 }], "resultText": "직접 해결했다" },
+            { "id": "forced", "label": "강제 지불 5 (부족분은 부채)", "isFallback": true, "forcedCost": 5, "effects": [], "resultText": "지불했다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "collab",
+      "deck": "event",
+      "title": "협업 제안",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "accept", "label": "시장 공개 프로젝트 1개를 정가 −2(최소 1)로 이번 턴 개설", "conditions": [{ "kind": "marketNotEmpty" }], "effects": [{ "kind": "grantOpen", "source": "collab", "discount": 2 }], "resultText": "이번 턴에 할인 개설할 수 있다" },
+            { "id": "decline", "label": "거절", "isFallback": true, "effects": [], "resultText": "거절했다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "overwork",
+      "deck": "event",
+      "title": "과로 경고",
+      "appliesIf": [{ "kind": "healthAtMost", "value": 4 }],
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "checkup", "label": "검진비 2로 건강 +2", "voluntaryCost": 2, "effects": [{ "kind": "health", "amount": 2 }], "resultText": "검진을 받았다" },
+            { "id": "rest", "label": "이번 턴 추가근무 불가", "isFallback": true, "effects": [{ "kind": "modifier", "key": "noOvertime", "value": true }], "resultText": "이번 턴은 추가근무를 하지 않는다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "health-decline",
+      "deck": "event",
+      "title": "건강 악화",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "prevent", "label": "예방 치료비 3", "voluntaryCost": 3, "effects": [], "resultText": "예방 치료를 받았다" },
+            { "id": "suffer", "label": "건강 −2", "isFallback": true, "effects": [{ "kind": "health", "amount": -2 }], "resultText": "건강이 나빠졌다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "study-chance",
+      "deck": "opportunity",
+      "title": "학습 기회",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "study", "label": "행동력 1 + 현금 3으로 역량 +2", "conditions": [{ "kind": "skillAtMost", "value": 5 }], "apCost": 1, "voluntaryCost": 3, "effects": [{ "kind": "skill", "amount": 2 }], "resultText": "역량이 올랐다" },
+            { "id": "pass", "label": "넘김", "isFallback": true, "effects": [], "resultText": "넘겼다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job-posting",
+      "deck": "opportunity",
+      "title": "채용 공고",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "use", "label": "이번 턴 구직의 행동력 비용 0", "effects": [{ "kind": "modifier", "key": "freeJobSearch", "value": true }], "resultText": "이번 턴 구직에 행동력이 들지 않는다" },
+            { "id": "pass", "label": "넘김", "isFallback": true, "effects": [], "resultText": "넘겼다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "checkup",
+      "deck": "opportunity",
+      "title": "건강 검진",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "checkup", "label": "현금 1로 건강 +2", "voluntaryCost": 1, "effects": [{ "kind": "health", "amount": 2 }], "resultText": "검진을 받았다" },
+            { "id": "pass", "label": "넘김", "isFallback": true, "effects": [], "resultText": "넘겼다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "seminar",
+      "deck": "opportunity",
+      "title": "투자 설명회",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "attend", "label": "시장 공개 프로젝트 1개를 이번 턴 개설 가능", "conditions": [{ "kind": "marketNotEmpty" }], "effects": [{ "kind": "grantOpen", "source": "seminar", "discount": 0 }], "resultText": "이번 턴에 개설할 수 있다" },
+            { "id": "pass", "label": "넘김", "isFallback": true, "effects": [], "resultText": "넘겼다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "housing",
+      "deck": "expense",
+      "title": "주거비 갱신",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "pay", "label": "현금 3", "voluntaryCost": 3, "effects": [], "resultText": "갱신했다" },
+            { "id": "move", "label": "저렴한 곳으로 이사", "apCost": 1, "voluntaryCost": 1, "effects": [{ "kind": "health", "amount": -1 }], "resultText": "이사했다" },
+            { "id": "forced", "label": "강제 지불 3 (부족분은 부채)", "isFallback": true, "forcedCost": 3, "effects": [], "resultText": "지불했다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "celebration",
+      "deck": "expense",
+      "title": "경조사",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "attend", "label": "현금 2로 참석", "voluntaryCost": 2, "effects": [{ "kind": "health", "amount": 1 }], "resultText": "참석했다" },
+            { "id": "skip", "label": "불참", "isFallback": true, "effects": [], "resultText": "불참했다" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "rest-tile",
+      "deck": "rest",
+      "title": "휴식",
+      "branches": {
+        "default": {
+          "options": [
+            { "id": "health", "label": "건강 +2", "isFallback": true, "effects": [{ "kind": "health", "amount": 2 }], "resultText": "쉬었다" },
+            { "id": "ap", "label": "이번 턴 즉시 행동력 +1", "effects": [{ "kind": "ap", "amount": 1 }], "resultText": "행동력이 1 늘었다" }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -45,6 +45,9 @@ export const REJECT_MESSAGES = {
   SAME_JOB: '이미 그 직업입니다',
   SKILL_REQUIRED: '역량이 부족합니다',
   NO_DEBT: '갚을 부채가 없습니다',
+  NO_PENDING_CARD: '고를 카드 선택지가 없습니다',
+  UNKNOWN_OPTION: '없는 선택지입니다',
+  CONDITION_NOT_MET: '선택지 조건을 만족하지 않습니다',
   REPAY_EXCEEDS_DEBT: '부채보다 많이 갚을 수 없습니다',
   REPAY_EXCEEDS_CASH: '현금보다 많이 갚을 수 없습니다',
 } as const;
