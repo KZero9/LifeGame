@@ -44,6 +44,9 @@ export const REJECT_MESSAGES = {
   ALREADY_WORKED: '근무한 뒤에는 구직할 수 없습니다',
   SAME_JOB: '이미 그 직업입니다',
   SKILL_REQUIRED: '역량이 부족합니다',
+  NO_DEBT: '갚을 부채가 없습니다',
+  REPAY_EXCEEDS_DEBT: '부채보다 많이 갚을 수 없습니다',
+  REPAY_EXCEEDS_CASH: '현금보다 많이 갚을 수 없습니다',
 } as const;
 
 export type RejectReason = keyof typeof REJECT_MESSAGES;

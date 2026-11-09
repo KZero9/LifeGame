@@ -41,6 +41,13 @@
     "max": 10,
     "agingFloor": 1
   },
+  "hospital": {
+    "fee": 3,
+    "dischargeHealth": 4
+  },
+  "debt": {
+    "interestDivisor": 10
+  },
   "skill": {
     "min": 0,
     "max": 6

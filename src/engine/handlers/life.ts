@@ -1,6 +1,8 @@
 // 생활 행동과 구직 (DESIGN_PHASE3.md 5·6장)
 
 import { RULES } from '../data';
+import { settleTurn } from '../flow';
+import { resolveHospitalization } from '../health';
 import { isWorkJob, jobSkillRequirement, openingFee, overtimePay, studyCost, workPay } from '../jobs';
 import { activeTurn, changeHealth, changeSkill, emit, getPlayer, payVoluntary, type Ctx } from '../state';
 import type { GameState, LifeActionKind, PlayerId } from '../types';
@@ -67,6 +69,8 @@ export const LIFE_ACTION: Handler<'LIFE_ACTION'> = {
         changeHealth(draft, ctx, p, RULES.lifeActions.rest.health, '휴식');
         break;
     }
+    // 효과를 모두 적용한 뒤 입원 판정. 입원하면 ④·⑤를 생략하고 ⑥으로 (2.2)
+    if (resolveHospitalization(draft, ctx, p)) settleTurn(draft, ctx);
   },
 };
 

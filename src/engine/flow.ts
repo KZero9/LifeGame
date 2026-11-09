@@ -4,6 +4,7 @@
 // 처리기는 단계를 끝낼 때 이 모듈의 함수를 불러 다음 입력 지점까지 진행시킨다.
 
 import { RULES, stageRule } from './data';
+import { discharge } from './health';
 import { activeTurn, changeHealth, emit, gainCash, getPlayer, payForced, type Ctx } from './state';
 import type { GameState, PlayerId, TurnState } from './types';
 
@@ -89,7 +90,13 @@ export function settleTurn(state: GameState, ctx: Ctx): void {
   const p = getPlayer(state, turn.playerId);
   const stage = stageRule(state.round);
 
-  // 1. 이자 — 3단계에서 구현
+  // 1. 이자: 턴 시작 부채 중 이번 턴에 갚지 않은 금액에만 붙는다 (4.3, P01)
+  const interestBase = Math.max(0, turn.debtAtStart - turn.repaidThisTurn);
+  if (interestBase > 0) {
+    const interest = Math.ceil(interestBase / RULES.debt.interestDivisor);
+    p.debt += interest;
+    emit(state, ctx, { playerId: p.id, kind: 'debt', delta: interest, cause: `이자 (대상 ${interestBase})` });
+  }
 
   // 2. 수입: 이번 턴 근무·추가근무 수입
   gainCash(state, ctx, p, turn.pendingIncome, '근무 수입');
@@ -98,8 +105,10 @@ export function settleTurn(state: GameState, ctx: Ctx): void {
   // 3. 강제 지출: 생활비
   payForced(state, ctx, p, stage.livingCost, '생활비');
 
-  // 4. 건강: 노화 (입원 관련 처리는 3단계)
-  if (!turn.startedHospitalized && !p.hospitalized && stage.aging > 0 && p.health > RULES.health.agingFloor) {
+  // 4. 건강: 입원으로 시작한 턴이면 퇴원, 이번 턴에 입원했으면 없음, 아니면 노화
+  if (turn.startedHospitalized) {
+    discharge(state, ctx, p);
+  } else if (!p.hospitalized && stage.aging > 0 && p.health > RULES.health.agingFloor) {
     const target = Math.max(RULES.health.agingFloor, p.health - stage.aging);
     changeHealth(state, ctx, p, target - p.health, '노화');
   }

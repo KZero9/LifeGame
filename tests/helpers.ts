@@ -63,11 +63,24 @@ export const current = (s: GameState) => s.turn!.playerId;
 export const player = (s: GameState, id: string): PlayerState => s.players.find((p) => p.id === id)!;
 export const me = (s: GameState) => player(s, current(s));
 
-/** 현재 플레이어를 주사위 dice로 이동시켜 ④ 생활 행동 단계까지 진행 (조정 없음) */
+/** 현재 플레이어를 ④ 생활 행동 단계로 바로 옮긴다 (이동·칸 효과를 고정한 입력, 18.1) */
 export function toActions(state: GameState, dice = 3): GameState {
   const s = structuredClone(state);
   s.turn!.dice = dice;
-  return act(s, current(s), { type: 'ADJUST', delta: 0 });
+  s.turn!.phase = 'actions';
+  return s;
+}
+
+/** round 라운드에서 seatIndex번째 차례가 시작되기 직전까지 진행한 뒤, 그 플레이어 상태를 patch로 바꾸고 턴을 연다 */
+export function startTurnWith(state: GameState, round: number, patch: Partial<PlayerState>, seatIndex = 0): GameState {
+  let s = state;
+  const order = s.turnOrder;
+  const prevRound = seatIndex === 0 ? round - 1 : round;
+  const prevIndex = seatIndex === 0 ? order.length - 1 : seatIndex - 1;
+  while (!(s.round === prevRound && s.turnIndex === prevIndex)) s = passTurn(s);
+  s = structuredClone(s);
+  Object.assign(player(s, order[seatIndex]!), patch);
+  return passTurn(s);
 }
 
 /** 현재 플레이어의 턴을 아무 행동 없이 끝낸다 */

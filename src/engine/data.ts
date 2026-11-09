@@ -33,6 +33,9 @@ export interface Rules {
   stages: StageRule[];
   ap: { base: number; lowHealth: number; lowHealthAtMost: number };
   health: { min: number; max: number; agingFloor: number };
+  hospital: { fee: number; dischargeHealth: number };
+  /** 이자 = ceil(이자 대상 / interestDivisor) */
+  debt: { interestDivisor: number };
   skill: { min: number; max: number };
   move: { adjustAp: number; minSteps: number; maxSteps: number };
   lifeActions: {
