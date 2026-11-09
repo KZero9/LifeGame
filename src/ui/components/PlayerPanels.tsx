@@ -61,6 +61,7 @@ export function ProjectPanel({ state }: { state: GameState }) {
       {rows.length === 0 ? (
         <p className="muted">없음</p>
       ) : (
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -88,6 +89,7 @@ export function ProjectPanel({ state }: { state: GameState }) {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

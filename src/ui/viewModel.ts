@@ -463,7 +463,7 @@ const KIND_LABEL: Record<string, string> = { cash: '현금', debt: '부채', hea
 export function logRows(state: GameState): LogRow[] {
   return state.log.map((e) => {
     const name = e.playerId ? (findPlayer(state, e.playerId)?.name ?? e.playerId) : '';
-    const deltaText = e.delta !== undefined && (DELTA_KINDS.has(e.kind) || e.kind === 'ap') ? ` ${KIND_LABEL[e.kind]} ${e.delta > 0 ? '+' : ''}${e.delta}` : '';
+    const deltaText = e.delta !== undefined && (DELTA_KINDS.has(e.kind) || e.kind === 'ap') ? ` ${KIND_LABEL[e.kind]} ${e.delta > 0 ? '+' : e.delta < 0 ? '−' : ''}${Math.abs(e.delta)}` : '';
     return { round: e.round, name, ...(e.playerId ? { playerId: e.playerId } : {}), text: `${e.cause}${deltaText}`, ...(e.delta !== undefined ? { delta: e.delta } : {}), kind: e.kind };
   });
 }

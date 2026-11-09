@@ -11,8 +11,9 @@ export function ResponsePanel({ state, onAction }: { state: GameState; onAction:
     <div className="card stack">
       <h2>{v.buyer}: 지분 매입 제안</h2>
       <p>
-        <b>{v.seller}</b>가 <b>{v.title}</b> {v.count}지분을 1지분당 {v.pricePerShare} (총 {e.total})에 팔겠다고 합니다.
+        판매자 <b>{v.seller}</b> · <b>{v.title}</b> {v.count}지분 · 1지분당 {v.pricePerShare} (총 {e.total})
       </p>
+      <div className="table-wrap">
       <table>
         <tbody>
           <tr>
@@ -31,6 +32,7 @@ export function ResponsePanel({ state, onAction }: { state: GameState; onAction:
           </tr>
         </tbody>
       </table>
+      </div>
       <p className="muted">{e.assumption}</p>
       <div className="choices">
         <ChoiceButton choice={v.accept} primary onPick={(c) => onAction(c.action)} />

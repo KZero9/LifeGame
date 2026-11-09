@@ -68,6 +68,7 @@ p { margin: 4px 0; }
 .warn { color: var(--warn); }
 
 .app { max-width: 1280px; margin: 0 auto; padding: 16px; }
+@media (max-width: 520px) { .tile .kind { font-size: 11px; } .tile { padding: 2px; } .board-center { font-size: 12px; padding: 4px; } }
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -77,7 +78,8 @@ p { margin: 4px 0; }
 .stack { display: flex; flex-direction: column; gap: 12px; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .grid-main { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-.grid-players { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.grid-players { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 12px; }
+.table-wrap { overflow-x: auto; max-width: 100%; }
 @media (max-width: 860px) { .grid-main { grid-template-columns: 1fr; } }
 
 button, .btn {
@@ -97,7 +99,7 @@ button.choice { display: flex; flex-direction: column; gap: 2px; width: 100%; }
 button.choice .detail { font-size: 12px; color: var(--muted); }
 button.primary .detail { color: inherit; opacity: 0.85; }
 button.choice .why { font-size: 12px; color: var(--danger); }
-.choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr)); gap: 8px; }
 input, select {
   font: inherit;
   padding: 6px 8px;
@@ -137,6 +139,7 @@ label { display: inline-flex; gap: 6px; align-items: center; }
 .goal.likely { color: var(--ok); }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
+td, th { overflow-wrap: anywhere; }
 th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
 

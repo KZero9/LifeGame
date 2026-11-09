@@ -91,7 +91,7 @@ export const OFFER_SHARES: Handler<'OFFER_SHARES'> = {
     draft.pendingOffer = { offerId, projectId, sellerId: actor, buyerId: targetId, count, pricePerShare, status: 'pending' };
     activeTurn(draft).offerTargets.push(targetId);
     const card = getProjectCard(draft.projects.find((p) => p.instanceId === projectId)!.cardId);
-    emit(draft, ctx, { playerId: actor, kind: 'offer', cause: `${card.title} ${count}지분 × ${pricePerShare}를 ${targetId}에게 제안` });
+    emit(draft, ctx, { playerId: actor, kind: 'offer', cause: `${card.title} ${count}지분 × ${pricePerShare}를 ${getPlayer(draft, targetId).name}에게 제안` });
   },
 };
 
