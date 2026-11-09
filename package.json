@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sim": "vite-node scripts/simulate.ts"
   },
   "dependencies": {
     "react": "18.3.1",
