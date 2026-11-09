@@ -199,7 +199,7 @@
       "branches": {
         "default": {
           "options": [
-            { "id": "attend", "label": "현금 2로 참석", "voluntaryCost": 2, "effects": [{ "kind": "health", "amount": 1 }], "resultText": "참석했다" },
+            { "id": "attend", "label": "현금 1로 참석", "voluntaryCost": 1, "effects": [{ "kind": "health", "amount": 1 }], "resultText": "참석했다" },
             { "id": "skip", "label": "불참", "isFallback": true, "effects": [], "resultText": "불참했다" }
           ]
         }

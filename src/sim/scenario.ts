@@ -6,7 +6,7 @@
 import { POLICY_VARIANTS, type PolicyConfig } from '../ai/policy';
 import { RULES, type WorkJob } from '../engine/data';
 import type { GameState, PlayerId, PlayerResult } from '../engine/types';
-import { runGame, type SeatConfig, type SimResult } from './simulate';
+import { runGame, type SeatConfig, type SimOptions, type SimResult } from './simulate';
 
 export interface ScenarioScript {
   /** 플레이어 자리별 이동 주사위 순서. 주어지면 ROLL 대신 이 값을 쓴다 */
@@ -20,6 +20,7 @@ export interface ScenarioScript {
 export interface ScenarioOptions {
   seed: number;
   seats: SeatConfig[];
+  afterAction?: SimOptions['afterAction'];
   /** 비교 대상 자리 (0부터) */
   subjectSeat: number;
   script?: ScenarioScript;
@@ -43,6 +44,7 @@ export function runScenario(options: ScenarioOptions): SimResult & { subject: Pl
   const result = runGame({
     seed: options.seed,
     seats: options.seats,
+    ...(options.afterAction ? { afterAction: options.afterAction } : {}),
     beforeDecision(state, actor: PlayerId) {
       let s = state;
       if (!prepared) {

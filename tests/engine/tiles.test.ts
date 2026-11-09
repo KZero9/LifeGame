@@ -108,7 +108,7 @@ describe('E34 어떤 상태에서든 칸 처리', () => {
     expect(reason(s, current(s), choose('nope'))).toBe('UNKNOWN_OPTION');
     s = act(s, current(s), choose('attend'));
     expect(s.turn!.phase).toBe('actions');
-    expect(me(s)).toMatchObject({ cash: 8, health: 9 });
+    expect(me(s)).toMatchObject({ cash: 9, health: 9 });
     expect(s.decks.expense.discard).toEqual(['celebration']);
     expect(s.turn!.pendingTile).toBeUndefined();
   });

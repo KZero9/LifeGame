@@ -112,7 +112,7 @@ describe('생활 행동 (5장)', () => {
     me(s).job = 'business';
     s.environment = 'normal';
     s = act(s, current(s), life('work'));
-    expect(s.turn!.pendingIncome).toBe(4);
+    expect(s.turn!.pendingIncome).toBe(5);
     expect(reason(s, current(s), life('overtime'))).toBe('NO_OVERTIME_JOB');
   });
 
@@ -244,12 +244,12 @@ describe('직업과 구직 (5·6장)', () => {
     ['parttime', 1, null, 3],
     ['office', 2, null, 5],
     ['tech', 3, null, 6],
-    ['tech', 5, null, 7],
-    ['tech', 5, 'techTransition', 4],
+    ['tech', 5, null, 6],
+    ['tech', 5, 'techTransition', 3],
     ['business', 1, 'boom', 7],
-    ['business', 1, 'normal', 4],
-    ['business', 1, 'recession', 1],
-    ['business', 1, 'techTransition', 4],
+    ['business', 1, 'normal', 5],
+    ['business', 1, 'recession', 2],
+    ['business', 1, 'techTransition', 5],
   ] as const)('급여: %s 역량 %i 환경 %s → %i', (job, skill, env, pay) => {
     let s = toActions(newGame(7));
     s.environment = env;

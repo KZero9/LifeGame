@@ -33,6 +33,8 @@ export interface PolicyConfig {
   studyBonus?: number;
   /** 프로젝트 개설 효용 가산 */
   projectBonus?: number;
+  /** 상환할 때 남기는 현금 (기본: 비상금 기준 R). 회복 측정은 0 */
+  repayReserve?: number;
 }
 
 export const DEFAULT_POLICY: PolicyConfig = { name: 'default' };
@@ -287,7 +289,7 @@ function scoreAction(state: GameState, p: PlayerState, a: Action, config: Policy
       if (!turn?.dice) return EXCLUDED;
       const dest = (d: number) => (p.position + (turn.dice ?? 0) + d) % RULES.board.length;
       const base = tileValue(state, p, dest(0), config);
-      return a.delta === 0 ? 0 : tileValue(state, p, dest(a.delta), config) - base - AP_VALUE;
+      return a.delta === 0 ? 0 : tileValue(state, p, dest(a.delta), config) - base - AP_VALUE * RULES.move.adjustAp;
     }
     case 'CHOOSE_OPTION':
       return optionUtility(state, p, a.optionId, config);
@@ -337,13 +339,13 @@ function scoreAction(state: GameState, p: PlayerState, a: Action, config: Policy
 }
 
 /** AI가 직접 만드는 후보: 상환(현금 − R만큼), 지분 판매 제안(12.4) */
-function extraCandidates(state: GameState, p: PlayerState): { action: Action; utility: number }[] {
+function extraCandidates(state: GameState, p: PlayerState, config: PolicyConfig): { action: Action; utility: number }[] {
   const out: { action: Action; utility: number }[] = [];
   const turn = state.turn;
   if (!turn || turn.playerId !== p.id) return out;
   const R = reserve(state);
   if (turn.phase === 'actions') {
-    const amount = Math.min(p.debt, p.cash - R);
+    const amount = Math.min(p.debt, p.cash - (config.repayReserve ?? R));
     if (amount >= 1) out.push({ action: { type: 'REPAY', amount }, utility: amount * 0.15 });
   }
   if (turn.phase === 'trade') {
@@ -412,7 +414,7 @@ export function chooseAction(state: GameState, playerId: PlayerId, config: Polic
     if (action.type === 'REPAY' || action.type === 'OFFER_SHARES') continue; // 아래에서 AI 후보로 대체
     scored.push({ action, utility: scoreAction(state, p, action, config), order: tieOrder(action) });
   }
-  for (const { action, utility } of extraCandidates(state, p)) scored.push({ action, utility, order: tieOrder(action) });
+  for (const { action, utility } of extraCandidates(state, p, config)) scored.push({ action, utility, order: tieOrder(action) });
 
   let best: Scored | undefined;
   for (const s of scored) {

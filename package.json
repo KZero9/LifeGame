@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",
-    "sim": "vite-node scripts/simulate.ts"
+    "sim": "vite-node scripts/simulate.ts",
+    "balance": "vite-node scripts/balance.ts"
   },
   "dependencies": {
     "react": "18.3.1",

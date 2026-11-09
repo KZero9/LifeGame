@@ -25,6 +25,8 @@ export interface SimOptions {
   recordActions?: boolean;
   /** 결정 직전에 상태를 바꾸는 훅 (시나리오 하네스의 고정 입력 주입용) */
   beforeDecision?: (state: GameState, actor: PlayerId) => GameState;
+  /** 행동 적용 직후 훅 (측정용) */
+  afterAction?: (before: GameState, actor: PlayerId, action: Action, after: GameState) => void;
 }
 
 export interface SimResult {
@@ -75,6 +77,7 @@ export function runGame(options: SimOptions): SimResult {
 
     const r = applyAction(state, actor, action);
     if (!r.ok) throw new Error(`시드 ${options.seed}: AI 행동 거부 ${actor} ${JSON.stringify(action)} → ${r.reason}`);
+    options.afterAction?.(state, actor, action, r.state);
     state = r.state;
     decisions++;
     if (options.recordActions) actions.push([actor, action]);
