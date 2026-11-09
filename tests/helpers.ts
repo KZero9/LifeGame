@@ -7,10 +7,26 @@ export const THREE_PLAYERS: GameConfig['players'] = [
   { name: '다', controller: 'ai' },
 ];
 
-export function newGame(seed = 42, players = THREE_PLAYERS): GameState {
+/** 시작 목표 선택 직후(목표 선택 대기) 상태 */
+export function newGameRaw(seed = 42, players = THREE_PLAYERS): GameState {
   const r = createGame({ seed, players });
   if (!r.ok) throw new Error(r.reason);
   return r.state;
+}
+
+/** 시작 목표를 받은 순서대로 골라 1라운드 첫 턴까지 진행한 상태 */
+export function newGame(seed = 42, players = THREE_PLAYERS): GameState {
+  return autoPickGoals(newGameRaw(seed, players));
+}
+
+/** 대기 중인 목표 선택을 모두 처리한다: 받은 카드 앞에서부터 최소 장수만 고른다 */
+export function autoPickGoals(state: GameState): GameState {
+  let s = state;
+  while (s.pendingGoalPicks.length > 0) {
+    const pick = s.pendingGoalPicks[0]!;
+    s = act(s, pick.playerId, { type: 'PICK_GOALS', goalIds: pick.offered.slice(0, pick.min) });
+  }
+  return s;
 }
 
 export function makeTurn(playerId: string, phase: TurnPhase): TurnState {
@@ -84,12 +100,13 @@ export function startTurnWith(state: GameState, round: number, patch: Partial<Pl
   return passTurn(s);
 }
 
-/** 현재 플레이어의 턴을 아무 행동 없이 끝낸다 */
+/** 현재 플레이어의 턴을 아무 행동 없이 끝낸다. 5라운드 목표 선택이 나오면 고르지 않고 넘긴다 */
 export function passTurn(state: GameState): GameState {
-  let s = toActions(state);
-  s = act(s, current(s), { type: 'END_PHASE' });
-  if (s.turn?.phase === 'trade') s = act(s, current(s), { type: 'END_PHASE' });
-  return s;
+  let s = toActions(autoPickGoals(state));
+  const id = current(s);
+  s = act(s, id, { type: 'END_PHASE' });
+  if (s.turn?.playerId === id && s.turn.phase === 'trade') s = act(s, id, { type: 'END_PHASE' });
+  return autoPickGoals(s);
 }
 
 /** 시장 공개 카드를 프로젝트 덱으로 되돌린다 (카드 장수 보존) */

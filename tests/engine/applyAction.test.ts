@@ -140,29 +140,29 @@ describe('맥락 검사', () => {
     const withPick = () => {
       const s = newGame();
       s.status = 'goalPick';
-      s.pendingGoalPicks = [{ playerId: 'p1', offered: ['g1', 'g2', 'g3'], min: 2, max: 2 }];
+      s.pendingGoalPicks = [{ playerId: 'p1', offered: ['expert', 'healthy-old', 'steady'], min: 2, max: 2 }];
       return s;
     };
 
     it('대기 중인 선택이 있으면 다른 행동을 막는다', () => {
       const s = playingState('move');
-      s.pendingGoalPicks = [{ playerId: 'p1', offered: ['g1', 'g2'], min: 0, max: 1 }];
+      s.pendingGoalPicks = [{ playerId: 'p1', offered: ['expert', 'healthy-old'], min: 0, max: 1 }];
       expect(reasonOf(s, s.turnOrder[0]!, { type: 'ROLL' })).toBe('GOAL_PICK_PENDING');
     });
 
     it('받은 카드 안에서 정해진 장수만 고를 수 있다', () => {
       const s = withPick();
-      expect(reasonOf(s, 'p2', { type: 'PICK_GOALS', goalIds: ['g1', 'g2'] })).toBe('NO_GOAL_PICK');
-      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['g1', 'g9'] })).toBe('GOAL_NOT_OFFERED');
-      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['g1'] })).toBe('GOAL_PICK_COUNT');
-      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['g1', 'g2', 'g3'] })).toBe('GOAL_PICK_COUNT');
-      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['g1', 'g2'] })).toBe('NOT_IMPLEMENTED');
+      expect(reasonOf(s, 'p2', { type: 'PICK_GOALS', goalIds: ['expert', 'healthy-old'] })).toBe('NO_GOAL_PICK');
+      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['expert', 'nope'] })).toBe('GOAL_NOT_OFFERED');
+      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['expert'] })).toBe('GOAL_PICK_COUNT');
+      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['expert', 'healthy-old', 'steady'] })).toBe('GOAL_PICK_COUNT');
+      expect(reasonOf(s, 'p1', { type: 'PICK_GOALS', goalIds: ['expert', 'healthy-old'] })).toBe('OK');
     });
 
     it('5라운드 추가 선택은 0장도 허용된다(min 0)', () => {
       const s = playingState('move');
-      s.pendingGoalPicks = [{ playerId: 'p2', offered: ['g4', 'g5'], min: 0, max: 1 }];
-      expect(reasonOf(s, 'p2', { type: 'PICK_GOALS', goalIds: [] })).toBe('NOT_IMPLEMENTED');
+      s.pendingGoalPicks = [{ playerId: 'p2', offered: ['entrepreneur', 'companion'], min: 0, max: 1 }];
+      expect(reasonOf(s, 'p2', { type: 'PICK_GOALS', goalIds: [] })).toBe('OK');
     });
   });
 });

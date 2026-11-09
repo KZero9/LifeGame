@@ -5,7 +5,9 @@
 
 import { environmentCard, RULES, stageRule } from './data';
 import { discard, draw } from './decks';
+import { checkMaintenanceGoals, dealExtraGoals, GOAL_RULES, recordMaturity } from './goals';
 import { discharge } from './health';
+import { finishGame } from './scoring';
 import { activeOpenedBy, isTradable, PROJECT_RULES, refillMarket, sellableShares, settleMaturities } from './projects';
 import { activeTurn, changeHealth, emit, gainCash, getPlayer, payForced, type Ctx } from './state';
 import type { GameState, PlayerId, TurnState } from './types';
@@ -27,6 +29,14 @@ export function newTurnState(playerId: PlayerId, startedHospitalized: boolean, d
   };
 }
 
+/** 목표 선택이 모두 끝나면 게임 시작(1라운드) 또는 5라운드 첫 턴으로 진행 */
+export function resumeAfterGoalPicks(state: GameState, ctx: Ctx): void {
+  if (state.pendingGoalPicks.length > 0) return;
+  state.status = 'playing';
+  if (state.round === 0) beginRound(state, ctx, 1);
+  else beginTurn(state, ctx);
+}
+
 /** 게임 시작: 시작 목표 선택이 끝났으면 1라운드를 연다 */
 export function startGameIfReady(state: GameState, ctx: Ctx): void {
   if (state.pendingGoalPicks.length > 0) {
@@ -46,6 +56,14 @@ export function beginRound(state: GameState, ctx: Ctx, round: number): void {
   // 공통 환경 카드 공개 (7장). 덱이 비면 버린 8장을 다시 섞는다
   state.environment = draw(state, 'env');
   emit(state, ctx, { kind: 'environment', cause: `공통 환경: ${environmentCard(state.environment).title}` });
+  // 5라운드 시작: 추가 인생 목표 선택 (10.2). 모두 고르면 resumeAfterGoalPicks가 첫 턴을 연다
+  if (round === GOAL_RULES.extraRound) {
+    dealExtraGoals(state, ctx);
+    if (state.pendingGoalPicks.length > 0) {
+      state.status = 'goalPick';
+      return;
+    }
+  }
   beginTurn(state, ctx);
 }
 
@@ -118,7 +136,8 @@ export function settleTurn(state: GameState, ctx: Ctx): void {
     changeHealth(state, ctx, p, target - p.health, '노화');
   }
 
-  // 5. 유지형 목표 판정 — 6단계에서 구현
+  // 5. 유지형 목표 판정
+  checkMaintenanceGoals(state, ctx, p);
 
   // 6. 다음 플레이어
   emit(state, ctx, { playerId: p.id, kind: 'turn', cause: '턴 종료' });
@@ -138,7 +157,7 @@ function nextTurn(state: GameState, ctx: Ctx): void {
 export function endRound(state: GameState, ctx: Ctx): void {
   state.turn = null;
   // 1. 만기 프로젝트 정산
-  settleMaturities(state, ctx);
+  for (const settled of settleMaturities(state, ctx)) recordMaturity(state, ctx, settled);
   // 2. 이번 라운드 환경 카드를 버린 더미로
   if (state.environment) discard(state, 'env', state.environment);
   // 3. 시장 보충
@@ -149,11 +168,4 @@ export function endRound(state: GameState, ctx: Ctx): void {
     return;
   }
   beginRound(state, ctx, state.round + 1);
-}
-
-/** 11.1 종료 처리. 청산·목표·점수는 6단계에서 구현한다 */
-function finishGame(state: GameState, ctx: Ctx): void {
-  state.status = 'finished';
-  state.turn = null;
-  emit(state, ctx, { kind: 'game', cause: '게임 종료' });
 }

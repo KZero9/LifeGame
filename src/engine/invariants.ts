@@ -17,6 +17,8 @@ export function checkInvariants(state: GameState): string[] {
     if (!isInt(p.skill) || p.skill < RULES.skill.min || p.skill > RULES.skill.max) errors.push(`${tag} 역량 ${p.skill}`);
     if (!isInt(p.position) || p.position < 0 || p.position >= RULES.board.length) errors.push(`${tag} 위치 ${p.position}`);
     if (p.hospitalized && p.health !== 0) errors.push(`${tag} 입원 중 건강 ${p.health}`);
+    if (p.goals.length > 3) errors.push(`${tag} 목표 ${p.goals.length}장`);
+    if (new Set(p.goals.map((g) => g.goalId)).size !== p.goals.length) errors.push(`${tag} 같은 목표 중복 보유`);
   }
   for (const proj of state.projects) {
     const total = Object.values(proj.shares).reduce((a, b) => a + b, 0);
@@ -41,6 +43,10 @@ export function checkInvariants(state: GameState): string[] {
       errors.push('진행 중인데 턴이 없음');
     }
   }
-  if (state.status === 'finished' && state.turn) errors.push('종료 후 턴이 남음');
+  if (state.status === 'finished') {
+    if (state.turn) errors.push('종료 후 턴이 남음');
+    if (!state.result) errors.push('종료했는데 결과가 없음');
+    if (state.projects.length > 0) errors.push('종료 후 진행 중 프로젝트가 남음');
+  }
   return errors;
 }

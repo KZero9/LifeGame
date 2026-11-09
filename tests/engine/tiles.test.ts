@@ -5,7 +5,7 @@ import { CARD_DATA, getCard, validateCardData, type CardData } from '../../src/e
 import { rollDie } from '../../src/engine/rng';
 import { checkOption } from '../../src/engine/tiles';
 import type { Action, GameState, Stage } from '../../src/engine/types';
-import { act, current, emptyMarket, me, newGame, player, putInMarket, reason, startTurnWith } from '../helpers';
+import { act, autoPickGoals, current, emptyMarket, me, newGame, player, putInMarket, reason, startTurnWith } from '../helpers';
 
 const choose = (optionId: string): Action => ({ type: 'CHOOSE_OPTION', optionId });
 const life = (action: 'work' | 'overtime' | 'study' | 'rest'): Action => ({ type: 'LIFE_ACTION', action });
@@ -342,7 +342,8 @@ describe('덱과 환경 (7장, E33)', () => {
 });
 
 /** 실제 이동으로 한 턴을 진행한다. 카드가 나오면 대체 선택지를 고른다 */
-function passTurnSafe(state: GameState): GameState {
+function passTurnSafe(input: GameState): GameState {
+  const state = autoPickGoals(input);
   let s = act(state, current(state), { type: 'ROLL' });
   s = act(s, current(s), { type: 'ADJUST', delta: 0 });
   const id = state.turn!.playerId;
@@ -353,6 +354,6 @@ function passTurnSafe(state: GameState): GameState {
   }
   if (s.turn?.playerId === id && s.turn.phase === 'actions') s = act(s, id, { type: 'END_PHASE' });
   if (s.turn?.playerId === id && s.turn.phase === 'trade') s = act(s, id, { type: 'END_PHASE' });
-  return s;
+  return autoPickGoals(s);
 }
 

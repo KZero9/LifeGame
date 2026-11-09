@@ -147,10 +147,18 @@ export interface LogEntry {
 
 export interface PlayerResult {
   playerId: PlayerId;
+  cash: number;
+  debt: number;
+  /** 종료 청산으로 받은 금액 (현금에 이미 포함) */
+  liquidation: number;
+  /** 현금 − 부채 */
   netWorth: number;
   assetScore: number;
   goalScore: number;
+  goals: { goalId: string; achieved: boolean; points: number; reason: string }[];
+  health: number;
   total: number;
+  /** 공동 순위 허용 (1, 1, 3 …) */
   rank: number;
 }
 
