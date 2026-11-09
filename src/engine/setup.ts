@@ -1,23 +1,19 @@
 // 게임 생성 (DESIGN_PHASE3.md 1.2 시작 상태, 17.3 난수)
 //
-// 1단계 범위: 플레이어 시작 자원, 턴 순서, 용도별 난수 스트림까지 만든다.
+// 플레이어 시작 자원, 턴 순서, 용도별 난수 스트림을 만들고 1라운드를 연다.
 // 카드 덱·시장·목표 덱은 해당 규칙 단계(4~6단계)에서 채운다. 지금은 빈 덱이다.
 
+import { RULES } from './data';
+import { startGameIfReady } from './flow';
 import { allStreamKeys, createRngState, isValidSeed, RngStreams, shuffle } from './rng';
+import type { Ctx } from './state';
 import type { Controller, Deck, GameState, PlayerState } from './types';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 4;
 
-/** 1.2 시작 상태 */
-export const START_STATE = {
-  cash: 10,
-  debt: 0,
-  health: 8,
-  skill: 1,
-  job: 'parttime',
-  position: 0,
-} as const;
+/** 1.2 시작 상태 (src/data/rules.json) */
+export const START_STATE = RULES.start;
 
 export interface PlayerConfig {
   name: string;
@@ -90,5 +86,8 @@ export function createGame(config: GameConfig): CreateResult {
     log: [{ round: 0, kind: 'setup', cause: `게임 생성 (시드 ${config.seed}, 턴 순서 ${turnOrder.join(' → ')})` }],
     status: 'setup',
   };
+  const ctx: Ctx = { log: [] };
+  startGameIfReady(state, ctx);
+  state.log.push(...ctx.log);
   return { ok: true, state };
 }

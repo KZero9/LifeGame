@@ -11,7 +11,8 @@ describe('게임 생성 (1.2 시작 상태)', () => {
       expect(p).toMatchObject({ cash: 10, debt: 0, health: 8, skill: 1, job: 'parttime', position: 0, hospitalized: false });
     }
     expect(START_STATE).toMatchObject({ cash: 10, debt: 0, health: 8, skill: 1, job: 'parttime', position: 0 });
-    expect(s).toMatchObject({ round: 0, status: 'setup', turn: null, turnIndex: 0, environment: null });
+    expect(s).toMatchObject({ round: 1, status: 'playing', turnIndex: 0, environment: null });
+    expect(s.turn).toMatchObject({ playerId: s.turnOrder[0], phase: 'move', apLeft: 3 });
   });
 
   it('난수 스트림을 플레이어 수에 맞게 모두 초기화한다', () => {

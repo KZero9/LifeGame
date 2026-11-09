@@ -1,0 +1,9 @@
+{
+  "default": "normal",
+  "cards": [
+    { "id": "normal", "title": "보통", "count": 3, "businessPay": 4, "projectDelta": 0, "techPayDelta": 0, "studyDiscount": 0, "rehireCostDelta": 0 },
+    { "id": "boom", "title": "호황", "count": 2, "businessPay": 7, "projectDelta": 2, "techPayDelta": 0, "studyDiscount": 0, "rehireCostDelta": 0 },
+    { "id": "recession", "title": "불황", "count": 2, "businessPay": 1, "projectDelta": -2, "techPayDelta": 0, "studyDiscount": 0, "rehireCostDelta": 1 },
+    { "id": "techTransition", "title": "기술 전환기", "count": 1, "businessPay": 4, "projectDelta": 0, "techPayDelta": -3, "studyDiscount": 1, "rehireCostDelta": 0 }
+  ]
+}

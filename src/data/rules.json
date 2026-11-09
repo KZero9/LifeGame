@@ -1,0 +1,132 @@
+{
+  "rounds": 12,
+  "start": {
+    "cash": 10,
+    "debt": 0,
+    "health": 8,
+    "skill": 1,
+    "job": "parttime",
+    "position": 0
+  },
+  "stages": [
+    {
+      "stage": "youth",
+      "fromRound": 1,
+      "toRound": 4,
+      "livingCost": 2,
+      "aging": 0
+    },
+    {
+      "stage": "middle",
+      "fromRound": 5,
+      "toRound": 8,
+      "livingCost": 3,
+      "aging": 1
+    },
+    {
+      "stage": "senior",
+      "fromRound": 9,
+      "toRound": 12,
+      "livingCost": 3,
+      "aging": 1
+    }
+  ],
+  "ap": {
+    "base": 3,
+    "lowHealth": 2,
+    "lowHealthAtMost": 3
+  },
+  "health": {
+    "min": 0,
+    "max": 10,
+    "agingFloor": 1
+  },
+  "skill": {
+    "min": 0,
+    "max": 6
+  },
+  "move": {
+    "adjustAp": 1,
+    "minSteps": 1,
+    "maxSteps": 7
+  },
+  "lifeActions": {
+    "work": {
+      "ap": 1,
+      "perTurn": 1
+    },
+    "overtime": {
+      "ap": 1,
+      "perTurn": 1,
+      "health": -1
+    },
+    "study": {
+      "ap": 1,
+      "perTurn": 1,
+      "cost": 2,
+      "skill": 1
+    },
+    "rest": {
+      "ap": 1,
+      "perTurn": 2,
+      "health": 1
+    },
+    "jobSearch": {
+      "ap": 1,
+      "perTurn": 1
+    }
+  },
+  "jobs": {
+    "parttime": {
+      "skill": 0,
+      "openingFee": 0,
+      "pay": 3,
+      "overtime": 3
+    },
+    "office": {
+      "skill": 2,
+      "openingFee": 0,
+      "pay": 5,
+      "overtime": 2
+    },
+    "tech": {
+      "skill": 3,
+      "openingFee": 0,
+      "pay": 6,
+      "highSkill": {
+        "atLeast": 5,
+        "pay": 7
+      },
+      "overtime": 2,
+      "studyCost": 1
+    },
+    "business": {
+      "skill": 1,
+      "openingFee": 6,
+      "pay": 4,
+      "overtime": null
+    }
+  },
+  "board": [
+    "rest",
+    "opportunity",
+    "event",
+    "expense",
+    "event",
+    "market",
+    "opportunity",
+    "event",
+    "expense",
+    "opportunity",
+    "rest",
+    "event",
+    "market",
+    "expense",
+    "opportunity",
+    "event",
+    "market",
+    "event",
+    "expense",
+    "opportunity"
+  ]
+}

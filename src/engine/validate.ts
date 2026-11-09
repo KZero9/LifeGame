@@ -29,6 +29,21 @@ export const REJECT_MESSAGES = {
   SELF_OFFER: '자기 자신에게는 제안할 수 없습니다',
   UNKNOWN_TARGET: '제안 대상이 참가자가 아닙니다',
   NOT_IMPLEMENTED: '아직 구현되지 않은 행동입니다',
+  // 행동별 규칙 (처리기 check)
+  NO_AP: '행동력이 부족합니다',
+  LIMIT_REACHED: '이번 턴에 더 할 수 없는 행동입니다',
+  ALREADY_ROLLED: '이미 주사위를 굴렸습니다',
+  NOT_ROLLED: '먼저 주사위를 굴려야 합니다',
+  MOVE_OUT_OF_RANGE: '이동 칸 수는 1~7이어야 합니다',
+  NO_JOB: '무직은 근무할 수 없습니다',
+  NOT_WORKED: '이번 턴에 근무한 뒤에만 추가근무할 수 있습니다',
+  NO_OVERTIME_JOB: '이 직업은 추가근무를 할 수 없습니다',
+  OVERTIME_BLOCKED: '이번 턴에는 추가근무를 할 수 없습니다',
+  SKILL_MAX: '역량이 이미 최대입니다',
+  NOT_ENOUGH_CASH: '돈이 부족합니다',
+  ALREADY_WORKED: '근무한 뒤에는 구직할 수 없습니다',
+  SAME_JOB: '이미 그 직업입니다',
+  SKILL_REQUIRED: '역량이 부족합니다',
 } as const;
 
 export type RejectReason = keyof typeof REJECT_MESSAGES;

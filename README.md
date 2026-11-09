@@ -29,6 +29,11 @@ export UV_USE_IO_URING=0
   - `rng.ts` 용도별 시드 난수 (17.3)
   - `setup.ts` 게임 생성과 시작 상태 (1.2)
   - `validate.ts` 형식·맥락 검사와 거부 사유
-  - `applyAction.ts` 엔진 진입점. 행동별 처리기는 구현 단계마다 등록
-- `src/data/` 카드·수치 데이터(JSON, 4단계부터)
+  - `applyAction.ts` 엔진 진입점 (`applyAction`, `checkAction`)
+  - `legal.ts` 합법 행동 목록, `invariants.ts` 불변 조건
+  - `flow.ts` 라운드·턴 진행과 정산, `jobs.ts` 직업 규칙, `state.ts` 자원 변경 도우미
+  - `handlers/` 행동별 처리기 (`check` + `apply`)
+- `src/data/` 수치·카드 데이터(JSON)
 - `tests/` Vitest 테스트
+
+구현 단계별 진행은 `IMPLEMENTATION_LOG.md`에 기록한다.

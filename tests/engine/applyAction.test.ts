@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { applyAction, REJECT_MESSAGES } from '../../src/engine';
-import { applyActionWith, type ActionHandler } from '../../src/engine/applyAction';
+import { applyActionWith } from '../../src/engine/applyAction';
+import type { Handler } from '../../src/engine/handlers/types';
 import type { Action, GameState, ShareOffer } from '../../src/engine/types';
 import { newGame, playingState } from '../helpers';
 
@@ -70,6 +71,8 @@ describe('맥락 검사', () => {
 
   it('시작 전·종료 후에는 거부', () => {
     const s = newGame();
+    s.status = 'setup';
+    s.turn = null;
     expect(reasonOf(s, s.turnOrder[0]!, { type: 'ROLL' })).toBe('GAME_NOT_STARTED');
     const f = playingState('move');
     f.status = 'finished';
@@ -125,7 +128,7 @@ describe('맥락 검사', () => {
       s.pendingOffer = offer(s, { status });
       expect(reasonOf(s, s.turnOrder[1]!, { type: 'RESPOND_OFFER', offerId: 'o1', accept: true })).toBe('OFFER_ALREADY_RESOLVED');
       // 응답이 끝난 제안은 다른 행동을 막지 않는다
-      expect(reasonOf(s, s.turnOrder[0]!, { type: 'END_PHASE' })).toBe('NOT_IMPLEMENTED');
+      expect(reasonOf(s, s.turnOrder[0]!, { type: 'END_PHASE' })).toBe('OK');
     });
 
     it('제안이 없으면 응답 거부', () => {
@@ -166,19 +169,22 @@ describe('맥락 검사', () => {
 });
 
 describe('처리기 연결과 불변성', () => {
-  it('1단계에는 처리기가 없어 적법한 입력도 NOT_IMPLEMENTED', () => {
-    const s = playingState('move');
-    expect(reasonOf(s, s.turnOrder[0]!, { type: 'ROLL' })).toBe('NOT_IMPLEMENTED');
+  it('처리기가 아직 없는 행동은 NOT_IMPLEMENTED', () => {
+    const s = playingState('actions');
+    expect(reasonOf(s, s.turnOrder[0]!, { type: 'OPEN_PROJECT', cardId: 'cafe' })).toBe('NOT_IMPLEMENTED');
   });
 
   it('성공하면 새 상태와 로그를 돌려주고 입력 상태는 바꾸지 않는다', () => {
     const s = playingState('actions');
     const before = structuredClone(s);
     const me = s.turnOrder[0]!;
-    const repay: ActionHandler<'REPAY'> = (draft, actor, action, ctx) => {
-      const p = draft.players.find((x) => x.id === actor)!;
-      p.cash -= action.amount;
-      ctx.log.push({ round: draft.round, playerId: actor, kind: 'cash', delta: -action.amount, cause: '테스트 상환' });
+    const repay: Handler<'REPAY'> = {
+      check: () => null,
+      apply(draft, actor, action, ctx) {
+        const p = draft.players.find((x) => x.id === actor)!;
+        p.cash -= action.amount;
+        ctx.log.push({ round: draft.round, playerId: actor, kind: 'cash', delta: -action.amount, cause: '테스트 상환' });
+      },
     };
     const r = applyActionWith({ REPAY: repay }, s, me, { type: 'REPAY', amount: 3 });
     expect(r.ok).toBe(true);
@@ -190,16 +196,19 @@ describe('처리기 연결과 불변성', () => {
     expect(r.state.log.at(-1)).toEqual(r.log[0]);
   });
 
-  it('처리기가 사유를 돌려주면 처리 중 변경은 버려진다', () => {
+  it('규칙 검사(check)가 사유를 돌려주면 적용하지 않는다', () => {
     const s = playingState('actions');
     const before = structuredClone(s);
-    const failing: ActionHandler<'REPAY'> = (draft) => {
-      draft.players[0]!.cash = 999;
-      draft.rng['dice:check'] = 0;
-      return 'REPAY_EXCEEDS_DEBT';
+    let applied = false;
+    const failing: Handler<'REPAY'> = {
+      check: () => 'REPAY_EXCEEDS_DEBT',
+      apply: () => {
+        applied = true;
+      },
     };
     const r = applyActionWith({ REPAY: failing }, s, s.turnOrder[0]!, { type: 'REPAY', amount: 1 });
     expect(r).toEqual({ ok: false, reason: 'REPAY_EXCEEDS_DEBT' });
+    expect(applied).toBe(false);
     expect(s).toEqual(before);
   });
 
