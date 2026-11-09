@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "preview": "vite preview",
     "sim": "vite-node scripts/simulate.ts",
-    "balance": "vite-node scripts/balance.ts"
+    "balance": "vite-node scripts/balance.ts",
+    "followup": "vite-node scripts/followup.ts"
   },
   "dependencies": {
     "react": "18.3.1",

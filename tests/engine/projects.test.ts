@@ -1,6 +1,6 @@
 // 17.2 5단계: 시장, 프로젝트 개설·할인, 지분 판매와 검증, 만기 정산, 지분 평가 함수(9.7)
 import { describe, expect, it } from 'vitest';
-import { getLegalActions } from '../../src/engine';
+import { getLegalActions, RULES } from '../../src/engine';
 import { distribute, priceRange, shareValue } from '../../src/engine/projects';
 import type { Action, GameState, ProjectInstance } from '../../src/engine/types';
 import { act, current, emptyMarket, forceDie, me, newGame, passTurn, player, putInMarket, reason, startTurnWith, toActions } from '../helpers';
@@ -377,6 +377,19 @@ describe('지분 가치 평가 (9.7)', () => {
 
 describe('예시 13.1 한 턴 (거래 응답은 사람이 대신 입력)', () => {
   it('민지: 시장으로 이동 조정 → 공유 오피스 개설 → 근무·휴식 → 2지분 × 2 판매 → 정산', () => {
+    // 13.1은 이동 조정 비용 1을 전제로 쓴 예시다 (현재 시험값 2)
+    const saved = RULES.move.adjustAp;
+    RULES.move.adjustAp = 1;
+    try {
+      run131();
+    } finally {
+      RULES.move.adjustAp = saved;
+    }
+  });
+});
+
+function run131() {
+  {
     let s = newGame(91, TWO);
     const [minji, junho] = s.turnOrder as [string, string];
     s = startTurnWith(s, 5, { job: 'office', cash: 9, debt: 0, health: 6, skill: 3, position: 1 });
@@ -418,5 +431,5 @@ describe('예시 13.1 한 턴 (거래 응답은 사람이 대신 입력)', () =>
     while (settled.round < 7) settled = passTurn(settled);
     const record = settled.projectHistory[0]!;
     expect(record).toMatchObject({ total: 10, payouts: { [minji]: 5, [junho]: 5 }, dice: 3 });
-  });
-});
+  }
+}

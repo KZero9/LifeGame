@@ -189,7 +189,7 @@ describe('종료 청산과 점수 (11장)', () => {
       goals: [
         { goalId: 'expert', pickedRound: 0, countedProjectIds: [], status: 'active' },
         { goalId: 'healthy-old', pickedRound: 0, countedProjectIds: [], status: 'active' },
-        { goalId: 'companion', pickedRound: 0, countedProjectIds: ['1', '2', '3'], status: 'active' },
+        { goalId: 'companion', pickedRound: 0, countedProjectIds: ['1', '2', '3', '4'], status: 'active' },
       ],
     });
     const r = computeResult(s, {}).players.find((x) => x.playerId === a)!;

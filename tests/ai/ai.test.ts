@@ -116,7 +116,7 @@ describe('AI 착취 반례 (18.2)', () => {
     expect(decide(plain.s, plain.buyer)).toMatchObject({ accept: false });
     const want = offered({ cardId: 'cafe', price: 2, buyerGoals: ['companion'] });
     expect(decide(want.s, want.buyer)).toMatchObject({ accept: true });
-    const done = offered({ cardId: 'cafe', price: 2, buyerGoals: ['companion'], counted: ['a', 'b', 'c'] });
+    const done = offered({ cardId: 'cafe', price: 2, buyerGoals: ['companion'], counted: ['a', 'b', 'c', 'd'] });
     expect(decide(done.s, done.buyer)).toMatchObject({ accept: false });
   });
 
@@ -124,7 +124,7 @@ describe('AI 착취 반례 (18.2)', () => {
     const held = offered({ cardId: 'cafe', price: 2, buyerGoals: ['companion'], buyerShares: 1 });
     expect(companionMarginal(held.s, player(held.s, held.buyer), 'p')).toBe(0);
     const fresh = offered({ cardId: 'cafe', price: 2, buyerGoals: ['companion'] });
-    expect(companionMarginal(fresh.s, player(fresh.s, fresh.buyer), 'p')).toBeCloseTo(0.6);
+    expect(companionMarginal(fresh.s, player(fresh.s, fresh.buyer), 'p')).toBeCloseTo((6 * 0.3) / 4);
   });
 
   it('만기 > 12인 프로젝트는 청산 가치로 평가해 거절', () => {
@@ -192,5 +192,13 @@ describe('시나리오 하네스', () => {
     expect(moves.length).toBeGreaterThan(0);
     expect(r.state.log.filter((e) => e.playerId === subjectId && e.cause === '이동 주사위')).toEqual([]);
     expect(moves.every((e) => e.delta === 1 || e.delta === 2 || e.delta === 3)).toBe(true);
+  });
+});
+
+describe('회복 중 선택 (후속 밸런스)', () => {
+  it('무직·현금 0·부채 상태에서도 AI는 아르바이트 구직을 고른다', () => {
+    const s = toActions(newGame(206));
+    Object.assign(me(s), { job: 'none', cash: 0, debt: 5, skill: 1 });
+    expect(decide(s, current(s))).toEqual({ type: 'CHANGE_JOB', job: 'parttime' });
   });
 });

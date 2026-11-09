@@ -6,11 +6,71 @@
   "extraPickMax": 1,
   "maxGoals": 3,
   "goals": [
-    { "id": "expert", "title": "전문가", "type": "state", "points": 6, "description": "종료 시 역량 6", "state": { "skillAtLeast": 6 } },
-    { "id": "healthy-old", "title": "건강한 노후", "type": "state", "points": 5, "description": "종료 시 건강 7 이상", "state": { "healthAtLeast": 7 } },
-    { "id": "steady", "title": "꾸준한 성장", "type": "state", "points": 4, "description": "종료 시 역량 4 이상이고 건강 5 이상", "state": { "skillAtLeast": 4, "healthAtLeast": 5 } },
-    { "id": "entrepreneur", "title": "사업가", "type": "cumulative", "points": 6, "description": "선택 이후 자신이 개설한 프로젝트 2개가 만기 정산됨", "cumulative": { "metric": "ownMatured", "target": 2 } },
-    { "id": "companion", "title": "동반자", "type": "cumulative", "points": 6, "description": "선택 이후 서로 다른 타인 개설 프로젝트 3개의 만기 정산에 지분 보유자로 참여", "cumulative": { "metric": "othersMatured", "target": 3 } },
-    { "id": "prepared", "title": "든든한 대비", "type": "maintenance", "points": 5, "description": "9~12라운드 자기 턴 ⑥ 직후 매번 현금 10 이상, 부채 0", "maintenance": { "fromRound": 9, "toRound": 12, "cashAtLeast": 10, "debtAtMost": 0 } }
+    {
+      "id": "expert",
+      "title": "전문가",
+      "type": "state",
+      "points": 6,
+      "description": "종료 시 역량 6",
+      "state": {
+        "skillAtLeast": 6
+      }
+    },
+    {
+      "id": "healthy-old",
+      "title": "건강한 노후",
+      "type": "state",
+      "points": 5,
+      "description": "종료 시 건강 8 이상",
+      "state": {
+        "healthAtLeast": 8
+      }
+    },
+    {
+      "id": "steady",
+      "title": "꾸준한 성장",
+      "type": "state",
+      "points": 4,
+      "description": "종료 시 역량 5 이상이고 건강 6 이상",
+      "state": {
+        "skillAtLeast": 5,
+        "healthAtLeast": 6
+      }
+    },
+    {
+      "id": "entrepreneur",
+      "title": "사업가",
+      "type": "cumulative",
+      "points": 6,
+      "description": "선택 이후 자신이 개설한 프로젝트 2개가 만기 정산됨",
+      "cumulative": {
+        "metric": "ownMatured",
+        "target": 2
+      }
+    },
+    {
+      "id": "companion",
+      "title": "동반자",
+      "type": "cumulative",
+      "points": 6,
+      "description": "선택 이후 서로 다른 타인 개설 프로젝트 4개의 만기 정산에 지분 보유자로 참여",
+      "cumulative": {
+        "metric": "othersMatured",
+        "target": 4
+      }
+    },
+    {
+      "id": "prepared",
+      "title": "든든한 대비",
+      "type": "maintenance",
+      "points": 5,
+      "description": "9~12라운드 자기 턴 ⑥ 직후 매번 현금 20 이상, 부채 0",
+      "maintenance": {
+        "fromRound": 9,
+        "toRound": 12,
+        "cashAtLeast": 20,
+        "debtAtMost": 0
+      }
+    }
   ]
 }

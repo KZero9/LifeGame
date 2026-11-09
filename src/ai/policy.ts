@@ -235,7 +235,7 @@ function goalEstimate(state: GameState, p: PlayerState, goalId: string, config: 
       prob = Math.min(1, Math.max(0, (left / 2 - (6 - p.skill)) / 3 + 0.5)) + (config.studyBonus ? 0.2 : 0);
       break;
     case 'healthy-old':
-      prob = p.health >= 7 ? 0.5 : 0.3;
+      prob = p.health >= (card.state?.healthAtLeast ?? 7) ? 0.5 : 0.3;
       break;
     case 'steady':
       prob = p.skill >= 3 ? 0.7 : 0.5;
@@ -247,7 +247,7 @@ function goalEstimate(state: GameState, p: PlayerState, goalId: string, config: 
       prob = 0.3;
       break;
     case 'prepared':
-      prob = p.cash >= 10 && p.debt === 0 ? 0.5 : 0.3;
+      prob = p.cash >= (card.maintenance?.cashAtLeast ?? 10) && p.debt === 0 ? 0.5 : 0.3;
       break;
   }
   return card.points * Math.min(1, Math.max(0, prob));
@@ -310,14 +310,16 @@ function scoreAction(state: GameState, p: PlayerState, a: Action, config: Policy
           if (p.health >= RULES.health.max) return EXCLUDED;
           let v = healthValue(p.health, 1);
           const senior = stageRule(Math.max(1, state.round)).stage === 'senior';
-          if (p.health <= 4 || (activeGoal(p, 'healthy-old') && senior && p.health < 7)) v *= 2;
+          const healthyOld = getGoal('healthy-old').state?.healthAtLeast ?? 7;
+          if (p.health <= 4 || (activeGoal(p, 'healthy-old') && senior && p.health < healthyOld)) v *= 2;
           return v;
         }
       }
       break;
     case 'CHANGE_JOB': {
       const fee = RULES.jobs[a.job as WorkJob].openingFee;
-      if (p.cash - fee < reserve(state)) return EXCLUDED;
+      // 비상금 기준은 돈이 드는 구직에만 적용한다 (무직·부채 상태에서 아르바이트 구직이 막히지 않게)
+      if (fee > 0 && p.cash - fee < reserve(state)) return EXCLUDED;
       const value = jobChangeValue(state, p, a.job, config) - fee;
       if (value <= 0) return value;
       // 구직은 근무 전에만 가능하므로, 같은 턴에 새 직업으로 근무할 수 있으면 그 급여까지 더해 근무보다 먼저 고른다

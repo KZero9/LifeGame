@@ -27,12 +27,13 @@ describe('이동 (3장)', () => {
     expect(reason(s, current(s), { type: 'ADJUST', delta: 0 })).toBe('NOT_ROLLED');
   });
 
-  it('±1 조정은 행동력 1을 쓴다', () => {
+  it('±1 조정은 규칙 값(move.adjustAp, 시험값 2)만큼 행동력을 쓴다', () => {
+    expect(RULES.move.adjustAp).toBe(2);
     const s = newGame(1);
     s.turn!.dice = 6;
     const t = act(s, current(s), { type: 'ADJUST', delta: 1 });
     expect(me(t).position).toBe(7);
-    expect(t.turn).toMatchObject({ apLeft: 2, adjusted: true });
+    expect(t.turn).toMatchObject({ apLeft: 3 - RULES.move.adjustAp, adjusted: true });
   });
 
   it('E01 주사위 1에서 −1 조정은 선택지에 없다', () => {
@@ -47,6 +48,8 @@ describe('이동 (3장)', () => {
   it('E02 행동력 0에서 이동 조정은 불가', () => {
     const s = newGame(1);
     s.turn!.dice = 3;
+    s.turn!.apLeft = RULES.move.adjustAp - 1;
+    expect(reason(s, current(s), { type: 'ADJUST', delta: 1 })).toBe('NO_AP');
     s.turn!.apLeft = 0;
     expect(reason(s, current(s), { type: 'ADJUST', delta: 1 })).toBe('NO_AP');
     expect(reason(s, current(s), { type: 'ADJUST', delta: -1 })).toBe('NO_AP');

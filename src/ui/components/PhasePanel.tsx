@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { RULES } from '../../engine';
 import type { Action, GameState } from '../../engine/types';
 import { actionsView, moveChoices, tileView, type Choice } from '../viewModel';
 import { ChoiceButton } from './ChoiceButton';
@@ -37,7 +38,7 @@ function MoveStep({ state, actor, onPick }: { state: GameState; actor: string; o
   const choices = moveChoices(state, actor);
   return (
     <>
-      {state.turn?.dice !== undefined && <p>주사위 {state.turn.dice}. 행동력 1로 ±1 조정할 수 있습니다.</p>}
+      {state.turn?.dice !== undefined && <p>주사위 {state.turn.dice}. 행동력 {RULES.move.adjustAp}로 ±1 조정할 수 있습니다.</p>}
       <div className="choices">
         {choices.map((c, i) => (
           <ChoiceButton key={i} choice={c} primary={i === 0} onPick={onPick} />
