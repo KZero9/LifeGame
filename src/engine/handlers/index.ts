@@ -1,5 +1,6 @@
 // 행동별 처리기 등록. 구현 단계마다 여기에 추가한다
 import { REPAY } from './debt';
+import { OFFER_SHARES, OPEN_PROJECT, RESPOND_OFFER } from './projects';
 import { CHOOSE_OPTION } from './tile';
 import { CHANGE_JOB, LIFE_ACTION } from './life';
 import { ADJUST, END_PHASE, ROLL } from './turn';
@@ -13,4 +14,7 @@ export const HANDLERS: HandlerTable = {
   CHANGE_JOB,
   REPAY,
   CHOOSE_OPTION,
+  OPEN_PROJECT,
+  OFFER_SHARES,
+  RESPOND_OFFER,
 };

@@ -112,15 +112,14 @@ describe('맥락 검사', () => {
       expect(reasonOf(s, seller, { type: 'END_PHASE' })).toBe('AWAITING_OFFER_RESPONSE');
       expect(reasonOf(s, other, { type: 'RESPOND_OFFER', offerId: 'o1', accept: true })).toBe('NOT_OFFER_TARGET');
       expect(reasonOf(s, buyer, { type: 'RESPOND_OFFER', offerId: 'o2', accept: true })).toBe('OFFER_NOT_FOUND');
-      // 형식·맥락은 통과하고, 처리기는 5단계에서 등록
-      expect(reasonOf(s, buyer, { type: 'RESPOND_OFFER', offerId: 'o1', accept: true })).toBe('NOT_IMPLEMENTED');
+      expect(reasonOf(s, buyer, { type: 'RESPOND_OFFER', offerId: 'o1', accept: false })).toBe('OK');
     });
 
     it('E35 입원 중인 대상도 응답할 수 있다', () => {
       const s = playingState('trade');
       s.pendingOffer = offer(s);
       s.players.find((p) => p.id === s.turnOrder[1])!.hospitalized = true;
-      expect(reasonOf(s, s.turnOrder[1]!, { type: 'RESPOND_OFFER', offerId: 'o1', accept: false })).toBe('NOT_IMPLEMENTED');
+      expect(reasonOf(s, s.turnOrder[1]!, { type: 'RESPOND_OFFER', offerId: 'o1', accept: false })).toBe('OK');
     });
 
     it.each(['accepted', 'rejected', 'invalid'] as const)('E42 이미 %s인 제안에 다시 응답하면 거부', (status) => {
@@ -169,9 +168,9 @@ describe('맥락 검사', () => {
 });
 
 describe('처리기 연결과 불변성', () => {
-  it('처리기가 아직 없는 행동은 NOT_IMPLEMENTED', () => {
+  it('처리기가 등록되지 않은 행동은 NOT_IMPLEMENTED', () => {
     const s = playingState('actions');
-    expect(reasonOf(s, s.turnOrder[0]!, { type: 'OPEN_PROJECT', cardId: 'cafe' })).toBe('NOT_IMPLEMENTED');
+    expect(applyActionWith({}, s, s.turnOrder[0]!, { type: 'END_PHASE' })).toEqual({ ok: false, reason: 'NOT_IMPLEMENTED' });
   });
 
   it('성공하면 새 상태와 로그를 돌려주고 입력 상태는 바꾸지 않는다', () => {

@@ -5,6 +5,7 @@
 
 import { checkAction } from './applyAction';
 import { WORK_JOBS } from './data';
+import { activeOpenedBy, isTradable, priceRange, sellableShares, shareValue } from './projects';
 import { findPlayer } from './state';
 import type { Action, GameState, PlayerId } from './types';
 
@@ -45,7 +46,7 @@ function candidates(state: GameState, actor: PlayerId): Action[] {
     case 'move':
       return [{ type: 'ROLL' }, { type: 'ADJUST', delta: -1 }, { type: 'ADJUST', delta: 0 }, { type: 'ADJUST', delta: 1 }];
     case 'tile':
-      return [...(turn.pendingTile?.optionIds ?? []).map((optionId): Action => ({ type: 'CHOOSE_OPTION', optionId })), ...open];
+      return (turn.pendingTile?.optionIds ?? []).map((optionId): Action => ({ type: 'CHOOSE_OPTION', optionId }));
     case 'actions': {
       const repayMax = Math.min(p.cash, p.debt);
       const repay: Action[] = repayMax >= 1 ? [...new Set([1, repayMax])].map((amount) => ({ type: 'REPAY', amount })) : [];
@@ -61,10 +62,30 @@ function candidates(state: GameState, actor: PlayerId): Action[] {
       ];
     }
     case 'trade':
-      return [{ type: 'END_PHASE' }];
+      return [...offerCandidates(state, actor), { type: 'END_PHASE' }];
     default:
       return [];
   }
+}
+
+/** 지분 판매 대표 후보: 판매 가능한 프로젝트 × 대상 × 수량 × 가격(최저·기대 가치·최고) */
+function offerCandidates(state: GameState, actor: PlayerId): Action[] {
+  const out: Action[] = [];
+  for (const project of activeOpenedBy(state, actor)) {
+    if (!isTradable(state, project)) continue;
+    const range = priceRange(project.baseCost);
+    for (const target of state.players) {
+      if (target.id === actor) continue;
+      for (let count = 1; count <= sellableShares(project); count++) {
+        const fair = Math.ceil(shareValue(state, project.instanceId, target.id, 1).expected);
+        const prices = [...new Set([range.min, Math.min(range.max, Math.max(range.min, fair)), range.max])];
+        for (const pricePerShare of prices) {
+          out.push({ type: 'OFFER_SHARES', projectId: project.instanceId, targetId: target.id, count, pricePerShare });
+        }
+      }
+    }
+  }
+  return out;
 }
 
 export function getLegalActions(state: GameState, actor: PlayerId): Action[] {

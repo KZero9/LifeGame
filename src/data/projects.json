@@ -1,0 +1,16 @@
+{
+  "copiesPerCard": 2,
+  "marketSize": 3,
+  "maxActivePerOpener": 2,
+  "businessBonus": 2,
+  "offersPerTurn": 2,
+  "priceRange": { "minNumerator": 1, "maxNumerator": 3, "denominator": 8 },
+  "liquidationDivisor": 2,
+  "cards": [
+    { "id": "online-shop", "title": "온라인 상점", "cost": 4, "duration": 1, "results": [2, 4, 8] },
+    { "id": "cafe", "title": "동네 카페", "cost": 6, "duration": 2, "results": [3, 8, 12] },
+    { "id": "app", "title": "앱 개발", "cost": 7, "duration": 2, "results": [0, 6, 20] },
+    { "id": "shared-office", "title": "공유 오피스", "cost": 8, "duration": 2, "results": [4, 10, 15] },
+    { "id": "rental", "title": "소형 임대", "cost": 10, "duration": 3, "results": [11, 13, 15] }
+  ]
+}

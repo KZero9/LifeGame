@@ -48,6 +48,16 @@ export const REJECT_MESSAGES = {
   NO_PENDING_CARD: '고를 카드 선택지가 없습니다',
   UNKNOWN_OPTION: '없는 선택지입니다',
   CONDITION_NOT_MET: '선택지 조건을 만족하지 않습니다',
+  NOT_IN_MARKET: '시장에 공개된 프로젝트가 아닙니다',
+  PROJECT_LIMIT: '진행 중인 개설 프로젝트가 이미 2개입니다',
+  NO_OPEN_RIGHT: '이번 턴에는 프로젝트를 개설할 수 없습니다',
+  NO_TRADE_FINAL_ROUND: '12라운드에는 지분을 팔 수 없습니다',
+  UNKNOWN_PROJECT: '없는 프로젝트입니다',
+  NOT_OPENER: '개설자만 지분을 팔 수 있습니다',
+  NOT_TRADABLE: '거래할 수 없는 프로젝트입니다',
+  NOT_ENOUGH_SHARES: '판매할 수 있는 지분이 부족합니다 (개설자는 1지분 이상 보유)',
+  PRICE_OUT_OF_RANGE: '가격 범위를 벗어났습니다',
+  ALREADY_OFFERED: '이번 턴에 이미 제안한 상대입니다',
   REPAY_EXCEEDS_DEBT: '부채보다 많이 갚을 수 없습니다',
   REPAY_EXCEEDS_CASH: '현금보다 많이 갚을 수 없습니다',
 } as const;
@@ -81,7 +91,7 @@ export const PHASES_BY_ACTION: Readonly<Record<Exclude<ActionType, 'RESPOND_OFFE
   ROLL: ['move'],
   ADJUST: ['move'],
   CHOOSE_OPTION: ['tile'],
-  OPEN_PROJECT: ['tile', 'actions'], // 시장 칸(③) 또는 자영업 개설 행동·개설 권한(④)
+  OPEN_PROJECT: ['actions'], // 개설 권한(시장 칸·설명회·협업) 또는 자영업 개설 행동
   LIFE_ACTION: ['actions'],
   CHANGE_JOB: ['actions'],
   REPAY: ['actions'],

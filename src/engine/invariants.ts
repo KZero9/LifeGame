@@ -2,6 +2,7 @@
 // 위반 목록을 돌려준다. 빈 배열이면 정상
 
 import { RULES } from './data';
+import { PROJECT_RULES } from './projects';
 import type { GameState } from './types';
 
 const isInt = (n: number) => Number.isInteger(n);
@@ -22,6 +23,14 @@ export function checkInvariants(state: GameState): string[] {
     if (total !== 4) errors.push(`${proj.instanceId}: 지분 합 ${total}`);
     if ((proj.shares[proj.openerId] ?? 0) < 1) errors.push(`${proj.instanceId}: 개설자 지분 < 1`);
   }
+  // 프로젝트 카드 장수 보존: 덱 + 버린 더미 + 시장 + 진행 중 = 10
+  const cardTotal = state.decks.project.drawPile.length + state.decks.project.discard.length + state.market.length + state.projects.length;
+  const expectedCards = PROJECT_RULES.cards.length * PROJECT_RULES.copiesPerCard;
+  if (cardTotal !== expectedCards) errors.push(`프로젝트 카드 ${cardTotal}장 (기대 ${expectedCards})`);
+  const opened: Record<string, number> = {};
+  for (const proj of state.projects) opened[proj.openerId] = (opened[proj.openerId] ?? 0) + 1;
+  for (const [id, n] of Object.entries(opened)) if (n > PROJECT_RULES.maxActivePerOpener) errors.push(`${id}: 진행 중 개설 ${n}개`);
+
   if (state.status === 'playing') {
     if (state.round < 1 || state.round > RULES.rounds) errors.push(`라운드 ${state.round}`);
     const t = state.turn;

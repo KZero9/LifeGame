@@ -43,6 +43,7 @@ export function playingState(phase: TurnPhase, seed = 42): GameState {
 // 진행 도우미
 
 import { applyAction, checkInvariants, getLegalActions, playersToAct } from '../src/engine';
+import { rollDie } from '../src/engine/rng';
 import type { Action, PlayerState } from '../src/engine/types';
 
 /** 행동을 적용하고 새 상태를 돌려준다. 거부되면 사유와 함께 실패 */
@@ -89,6 +90,40 @@ export function passTurn(state: GameState): GameState {
   s = act(s, current(s), { type: 'END_PHASE' });
   if (s.turn?.phase === 'trade') s = act(s, current(s), { type: 'END_PHASE' });
   return s;
+}
+
+/** 시장 공개 카드를 프로젝트 덱으로 되돌린다 (카드 장수 보존) */
+export function emptyMarket(s: GameState): void {
+  s.decks.project.drawPile.push(...s.market);
+  s.market = [];
+}
+
+/** 프로젝트 카드 cardId를 시장에 공개한다 (덱이나 버린 더미에서 가져옴) */
+export function putInMarket(s: GameState, cardId: string): void {
+  if (s.market.includes(cardId)) return;
+  const deck = s.decks.project;
+  for (const pile of [deck.drawPile, deck.discard]) {
+    const i = pile.indexOf(cardId);
+    if (i >= 0) {
+      pile.splice(i, 1);
+      if (s.market.length >= 3) deck.drawPile.push(s.market.shift()!);
+      s.market.push(cardId);
+      return;
+    }
+  }
+  throw new Error(`시장에 올릴 카드가 없음: ${cardId}`);
+}
+
+/** 용도별 스트림 key의 다음 주사위가 조건을 만족하도록 난수 상태를 고른다 */
+export function forceDie(s: GameState, key: string, wanted: (d: number) => boolean): void {
+  for (let k = 0; k < 10000; k++) {
+    const trial = { [key]: k };
+    if (wanted(rollDie(trial, key))) {
+      s.rng[key] = k;
+      return;
+    }
+  }
+  throw new Error('원하는 주사위를 찾지 못함');
 }
 
 /** 간단한 시드 난수 (테스트 정책용, 엔진 난수와 별개) */

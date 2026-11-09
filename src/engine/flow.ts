@@ -6,6 +6,7 @@
 import { environmentCard, RULES, stageRule } from './data';
 import { discard, draw } from './decks';
 import { discharge } from './health';
+import { activeOpenedBy, isTradable, PROJECT_RULES, refillMarket, sellableShares, settleMaturities } from './projects';
 import { activeTurn, changeHealth, emit, gainCash, getPlayer, payForced, type Ctx } from './state';
 import type { GameState, PlayerId, TurnState } from './types';
 
@@ -55,6 +56,7 @@ export function beginTurn(state: GameState, ctx: Ctx): void {
   const p = getPlayer(state, playerId);
   const ap = p.hospitalized ? 0 : p.health <= RULES.ap.lowHealthAtMost ? RULES.ap.lowHealth : RULES.ap.base;
   state.turn = newTurnState(playerId, p.hospitalized, p.debt, ap);
+  delete state.pendingOffer;
   emit(state, ctx, { playerId, kind: 'turn', cause: p.hospitalized ? '턴 시작 (입원 중: ①~⑤ 생략)' : `턴 시작 (행동력 ${ap})` });
 
   if (p.hospitalized) {
@@ -75,9 +77,14 @@ export function enterTrade(state: GameState, ctx: Ctx): void {
   if (!hasTradeOptions(state, turn.playerId)) settleTurn(state, ctx);
 }
 
-/** 이번 턴에 지분 판매 제안을 할 수 있는가. 지분 거래는 5단계에서 구현한다 */
-export function hasTradeOptions(_state: GameState, _playerId: PlayerId): boolean {
-  return false;
+/** 이번 턴에 지분 판매 제안을 할 수 있는가 (9.5) */
+export function hasTradeOptions(state: GameState, playerId: PlayerId): boolean {
+  const turn = state.turn;
+  if (!turn || state.round === RULES.rounds) return false;
+  if (turn.offerTargets.length >= PROJECT_RULES.offersPerTurn) return false;
+  const targets = state.players.filter((p) => p.id !== playerId && !turn.offerTargets.includes(p.id));
+  if (targets.length === 0) return false;
+  return activeOpenedBy(state, playerId).some((p) => isTradable(state, p) && sellableShares(p) >= 1);
 }
 
 /** ⑥ 개인 정산 */
@@ -130,10 +137,12 @@ function nextTurn(state: GameState, ctx: Ctx): void {
 /** 2.1-3 라운드 종료 정산 */
 export function endRound(state: GameState, ctx: Ctx): void {
   state.turn = null;
-  // 1. 만기 프로젝트 정산 — 5단계
+  // 1. 만기 프로젝트 정산
+  settleMaturities(state, ctx);
   // 2. 이번 라운드 환경 카드를 버린 더미로
   if (state.environment) discard(state, 'env', state.environment);
-  // 3. 시장 보충 — 5단계
+  // 3. 시장 보충
+  refillMarket(state, ctx);
   emit(state, ctx, { kind: 'round', cause: `${state.round}라운드 종료` });
   if (state.round >= RULES.rounds) {
     finishGame(state, ctx);

@@ -5,7 +5,7 @@ import { CARD_DATA, getCard, validateCardData, type CardData } from '../../src/e
 import { rollDie } from '../../src/engine/rng';
 import { checkOption } from '../../src/engine/tiles';
 import type { Action, GameState, Stage } from '../../src/engine/types';
-import { act, current, me, newGame, player, reason, startTurnWith } from '../helpers';
+import { act, current, emptyMarket, me, newGame, player, putInMarket, reason, startTurnWith } from '../helpers';
 
 const choose = (optionId: string): Action => ({ type: 'CHOOSE_OPTION', optionId });
 const life = (action: 'work' | 'overtime' | 'study' | 'rest'): Action => ({ type: 'LIFE_ACTION', action });
@@ -224,14 +224,14 @@ describe('그 밖의 사건·기회·지출 카드', () => {
 
   it('협업 제안·투자 설명회: 시장 공개 카드가 없으면 수락 불가', () => {
     let s = newGame(42);
+    emptyMarket(s);
     s = landOn(s, EVENT_TILE, 'collab', 'youth');
     expect(reason(s, current(s), choose('accept'))).toBe('CONDITION_NOT_MET');
-    s.market = ['cafe'];
+    putInMarket(s, 'cafe');
     s = act(s, current(s), choose('accept'));
     expect(s.turn!.modifiers.openGrant).toEqual({ source: 'collab', discount: 2 });
 
     let t = newGame(42);
-    t.market = ['cafe'];
     t = landOn(t, OPPORTUNITY_TILE, 'seminar', 'opportunity');
     t = act(t, current(t), choose('attend'));
     expect(t.turn!.modifiers.openGrant).toEqual({ source: 'seminar', discount: 0 });
@@ -286,6 +286,7 @@ describe('그 밖의 사건·기회·지출 카드', () => {
 
   it('시장 칸: 공개 프로젝트가 없으면 개설 권한 없이 ④', () => {
     let s = newGame(48);
+    emptyMarket(s);
     s = landOn(s, 5);
     expect(s.turn!.phase).toBe('actions');
     expect(s.turn!.modifiers.openGrant).toBeUndefined();

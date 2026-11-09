@@ -2,6 +2,7 @@
 
 import { CARD_DATA } from './cards';
 import { ENVIRONMENTS } from './data';
+import { projectDeckCards } from './projects';
 import { RngStreams, shuffle, type RngState } from './rng';
 import type { Deck, GameState, Stage } from './types';
 
@@ -37,7 +38,7 @@ export function discard(state: GameState, key: DeckKey, cardId: string): void {
   deckOf(state, key).discard.push(cardId);
 }
 
-/** 게임 시작 시 사건·기회·지출·환경 덱을 섞어 만든다 */
+/** 게임 시작 시 사건·기회·지출·환경·프로젝트 덱을 섞어 만든다 */
 export function initCardDecks(state: GameState): void {
   const rng = state.rng;
   state.decks.event = {
@@ -48,4 +49,5 @@ export function initCardDecks(state: GameState): void {
   state.decks.opportunity = newDeck(rng, 'opportunity', CARD_DATA.decks.opportunity);
   state.decks.expense = newDeck(rng, 'expense', CARD_DATA.decks.expense);
   state.decks.env = newDeck(rng, 'env', ENVIRONMENTS.flatMap((c) => Array.from({ length: c.count }, () => c.id)));
+  state.decks.project = newDeck(rng, 'project', projectDeckCards());
 }
